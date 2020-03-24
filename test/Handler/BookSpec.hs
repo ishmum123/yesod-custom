@@ -15,6 +15,7 @@ spec =
     creationSpec
     bulkRetrievalSpec
     singleRetrievalSpec
+    singleUpdationSpec
     singleDeletionSpec
     invalidRequestSpec
 
@@ -88,7 +89,28 @@ singleDeletionSpec =
     books <- runDB $ selectList ([] :: [Filter Book]) []
     assertEq "Should decrease count" 2 $ P.length books
 
--- TODO: PUT REQUEST
+singleUpdationSpec :: SpecWith (TestApp App)
+singleUpdationSpec =
+  describe "single updation request" $
+  it "should update book with id" $ do
+    let book1 = Book "Introduction..." "Coremen" False Nothing
+        book2 = Book "Calculus" "Anton" False Nothing
+        book3 = Book "Pattern...." "Bishop" False Nothing
+        updatedBook = Book "Some" "Thing" False Nothing
+    _ <- runDB $ insertEntity book1
+    _ <- runDB $ insertEntity book2
+    _ <- runDB $ insertEntity book3
+    request $ do
+      setMethod "PUT"
+      setUrl $ BookSingleR $ BookKey 2
+      setRequestBody $ encode updatedBook
+      addRequestHeader ("Content-Type", "application/json")
+    statusIs 200
+    printBody
+    cnt <- runDB $ count ([] :: [Filter Book])
+    (book :: Book) <- requireJSONResponse
+    assertNotEq "Should not be the same book" book2 book
+    assertEq "Should not insert new row" 3 cnt
 
 invalidRequestSpec :: SpecWith (TestApp App)
 invalidRequestSpec =

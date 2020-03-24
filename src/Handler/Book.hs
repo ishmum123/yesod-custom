@@ -19,10 +19,10 @@ getBookSingleR bookId = do
   returnJson book
 
 putBookSingleR :: Key Book -> Handler Value
-putBookSingleR _ = do
-  let x = selectList ([] :: [Filter Book]) []
-  books <- runDB x
-  returnJson books
+putBookSingleR bookId = do
+  book <- requireCheckJsonBody :: Handler Book
+  _ <- runDB $ replace bookId book
+  returnJson book
 
 deleteBookSingleR :: Key Book -> Handler Value
 deleteBookSingleR bookId = do
