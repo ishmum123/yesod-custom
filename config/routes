@@ -13,4 +13,7 @@
 
 /books BookR GET POST
 
+-- TODO: Make the above BooksR and this as BookR
+/books/#BookId BookSingleR GET PUT DELETE
+
 /profile ProfileR GET
