@@ -7,6 +7,7 @@ import Html.Events exposing (onClick, onInput)
 import Http exposing (jsonBody)
 import Json.Decode as Decode exposing (Decoder, bool, field, map4, maybe, string)
 import Json.Encode as Encode exposing (Value)
+import Result exposing (Result)
 
 
 
@@ -20,11 +21,14 @@ main =
   , update = update
   , view = view }
 
-
-
 -- MODEL
 
 type alias Model =
+  { book : Book
+  , books : List Book
+  }
+
+type alias Book =
   { name : String
   , author : String
   , isPirated : Bool
@@ -33,12 +37,9 @@ type alias Model =
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  (Model "" "" False Nothing, Http.get
-                                      { url = "http://localhost:3000/books"
-                                      , expect = Http.expectJson GotBooks booksDecoder
-                                      })
+  (Model (Book "" "" False Nothing) [], getBooks)
 
-modelToList : Model -> List (String, Value)
+modelToList : Book -> List (String, Value)
 modelToList model =
     let
         x = [ ( "name", Encode.string model.name )
@@ -72,36 +73,40 @@ type Msg
   | Publication (Maybe String)
   | Submit
   | ToggleIsPirated
-  | GotBook (Result Http.Error Model)
-  | GotBooks (Result Http.Error (List Model))
+  | GotBook (Result Http.Error Book)
+  | GotBooks (Result Http.Error (List Book))
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
+  let book = model.book
+  in
   case msg of
     Name name ->
-      ({ model | name = name }, Cmd.none)
+      ({ model | book = {book | name = name} }, Cmd.none)
 
     Author author ->
-      ({ model | author = author }, Cmd.none)
+      ({ model | book = {book | author = author} }, Cmd.none)
 
     IsPirated isPirated ->
-      ({ model | isPirated = isPirated }, Cmd.none)
+      ({ model | book = {book | isPirated = isPirated} }, Cmd.none)
 
     Publication publication ->
-      ({ model | publication = publication }, Cmd.none)
+      ({ model | book = {book | publication = publication} }, Cmd.none)
 
     Submit ->
-      (model, createBook model)
+      (model, createBook model.book)
 
     GotBook _ ->
-      (model, Cmd.none)
+      (model, getBooks)
 
-    GotBooks _ ->
-      (model, Cmd.none)
+    GotBooks result ->
+      case result of
+          Err _ -> (model, Cmd.none)
+          Ok response -> ({model | books = response}, Cmd.none)
 
     ToggleIsPirated ->
-      ({model | isPirated = not model.isPirated}, Cmd.none)
+      ({model | book = {book |isPirated = not book.isPirated}}, Cmd.none)
 
 
 
@@ -111,13 +116,25 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div []
-    [ viewInput "text" "Name" model.name Name
-    , viewInput "text" "Author" model.author Author
-    , viewOptionalInput "text" "Publication" model.publication Publication
+    [ viewInput "text" "Name" model.book.name Name
+    , viewInput "text" "Author" model.book.author Author
+    , viewOptionalInput "text" "Publication" model.book.publication Publication
     , checkbox ToggleIsPirated "Is Pirated"
     --, viewValidation model
     , button [ onClick Submit ] [ text "Submit" ]
+    , ul [] (viewBookList model.books)
     ]
+
+viewBookList : List Book -> List (Html msg)
+viewBookList = List.map viewBook
+
+viewBook : Book -> Html msg
+viewBook book =
+    div []
+      [ text book.name
+      , text book.author
+      ]
+
 
 checkbox : msg -> String -> Html msg
 checkbox msg name =
@@ -154,17 +171,19 @@ viewValidation model =
 
 -- HTTP
 
-createBook : Model -> Cmd Msg
+getBooks : Cmd Msg
+getBooks = Http.get
+                 { url = "http://localhost:3000/books"
+                 , expect = Http.expectJson GotBooks (Decode.list bookDecoder)
+                 }
+
+createBook : Book -> Cmd Msg
 createBook model = Http.post
                            { url = "http://localhost:3000/books"
                            , expect = Http.expectJson GotBook bookDecoder
                            , body = jsonBody (Encode.object (modelToList model))
                            }
 
-bookDecoder : Decoder Model
+bookDecoder : Decoder Book
 bookDecoder =
-    map4 Model (field "name" string) (field "author" string) (field "isPirated" bool) (maybe (field "publication" string))
-
-booksDecoder : Decoder (List Model)
-booksDecoder =
-    Decode.list bookDecoder
+    map4 Book (field "name" string) (field "author" string) (field "isPirated" bool) (maybe (field "publication" string))
