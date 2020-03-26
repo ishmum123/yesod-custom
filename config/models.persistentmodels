@@ -16,10 +16,16 @@ Comment json -- Adding "json" causes ToJSON and FromJSON instances to be derived
     userId UserId Maybe
     deriving Eq
     deriving Show
-Book json -- Adding "json" causes ToJSON and FromJSON instances to be derived.
+Book json
     name Text
     author Text
     isPirated Bool
     publication Text Maybe
+    deriving Eq
+    deriving Show
+LibraryUser json
+    name Text
+    email Text
+    password Text
     deriving Eq
     deriving Show

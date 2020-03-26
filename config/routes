@@ -11,9 +11,12 @@
 
 /comments CommentR POST
 
-/books BookR GET POST
+/books BookR GET POST OPTIONS
 
 -- TODO: Make the above BooksR and this as BookR
-/books/#BookId BookSingleR GET PUT DELETE
+/books/#BookId BookSingleR GET PUT DELETE OPTIONS
+
+/users LibraryUsersR GET POST OPTIONS
+/users/#LibraryUserId LibraryUserR GET PUT DELETE OPTIONS
 
 /profile ProfileR GET
