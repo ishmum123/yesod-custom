@@ -27,5 +27,8 @@ LibraryUser json
     name Text
     email Text
     password Text
+    birthDate UTCTime
+    registrationDate UTCTime default=CURRENT_DATE
+    UniqueLibraryUserEmail
     deriving Eq
     deriving Show

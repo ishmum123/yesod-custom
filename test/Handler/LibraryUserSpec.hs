@@ -28,7 +28,14 @@ creationSpec =
     let name = "My name" :: Text
         email = "someone@somemail.com" :: Text
         password = "Secret Key"
-        body = object [("name" .= name), ("email" .= email), ("password" .= password)]
+        body =
+          object
+            [ ("name" .= name)
+            , ("email" .= email)
+            , ("password" .= password)
+            , ("birthDate" .= randomTime)
+            , ("registrationDate" .= randomTime)
+            ]
         encoded = encode body
     request $ do
       setMethod "POST"
@@ -42,14 +49,17 @@ creationSpec =
       case libraryUsers of
         [ent] -> pure ent
         _     -> error "needed 1 entity"
-    assertEq "Should have " libraryUser (LibraryUser name email password)
+    assertEq "Should have " libraryUser (LibraryUser name email password randomTime randomTime)
+
+randomTime :: UTCTime
+randomTime = read "2012-09-15 00:07:31.874712 UTC"
 
 bulkRetrievalSpec :: SpecWith (TestApp App)
 bulkRetrievalSpec =
   describe "bulk retrieval request" $
   it "gets all the libraryUsers" $ do
-    let libraryUser1 = LibraryUser "User1" "user@mail.com" "Very Secret Password"
-        libraryUser2 = LibraryUser "Calculus" "Anton" "Very Secret Password"
+    let libraryUser1 = LibraryUser "User1" "user@mail.com" "Very Secret Password" randomTime randomTime
+        libraryUser2 = LibraryUser "Calculus" "Anton" "Very Secret Password" randomTime randomTime
     _ <- runDB $ insertEntity libraryUser1
     _ <- runDB $ insertEntity libraryUser2
     get LibraryUsersR
@@ -63,8 +73,8 @@ singleRetrievalSpec :: SpecWith (TestApp App)
 singleRetrievalSpec =
   describe "single retrieval request" $
   it "gets libraryUser with id" $ do
-    let libraryUser1 = LibraryUser "User1" "user@mail.com" "Very Secret Password"
-        libraryUser2 = LibraryUser "Calculus" "Anton" "Very Secret Password"
+    let libraryUser1 = LibraryUser "User1" "user@mail.com" "Very Secret Password" randomTime randomTime
+        libraryUser2 = LibraryUser "Calculus" "Anton" "Very Secret Password" randomTime randomTime
     _ <- runDB $ insertEntity libraryUser1
     _ <- runDB $ insertEntity libraryUser2
     get $ LibraryUserR $ LibraryUserKey 2
@@ -77,9 +87,9 @@ singleDeletionSpec :: SpecWith (TestApp App)
 singleDeletionSpec =
   describe "single deletion request" $
   it "should remove libraryUser with id" $ do
-    let libraryUser1 = LibraryUser "User1" "user@mail.com" "Very Secret Password"
-        libraryUser2 = LibraryUser "Calculus" "Anton" "Very Secret Password"
-        libraryUser3 = LibraryUser "Pattern...." "Bishop" "Very Secret Password"
+    let libraryUser1 = LibraryUser "User1" "user@mail.com" "Very Secret Password" randomTime randomTime
+        libraryUser2 = LibraryUser "Calculus" "Anton" "Very Secret Password" randomTime randomTime
+        libraryUser3 = LibraryUser "Pattern...." "Bishop" "Very Secret Password" randomTime randomTime
     _ <- runDB $ insertEntity libraryUser1
     _ <- runDB $ insertEntity libraryUser2
     _ <- runDB $ insertEntity libraryUser3
@@ -93,10 +103,10 @@ singleUpdationSpec :: SpecWith (TestApp App)
 singleUpdationSpec =
   describe "single updation request" $
   it "should update libraryUser with id" $ do
-    let libraryUser1 = LibraryUser "User1" "user@mail.com" "Very Secret Password"
-        libraryUser2 = LibraryUser "Calculus" "Anton" "Very Secret Password"
-        libraryUser3 = LibraryUser "Pattern...." "Bishop" "Very Secret Password"
-        updatedLibraryUser = LibraryUser "Some" "Thing" "Very Secret Password"
+    let libraryUser1 = LibraryUser "User1" "user@mail.com" "Very Secret Password" randomTime randomTime
+        libraryUser2 = LibraryUser "Calculus" "Anton" "Very Secret Password" randomTime randomTime
+        libraryUser3 = LibraryUser "Pattern...." "Bishop" "Very Secret Password" randomTime randomTime
+        updatedLibraryUser = LibraryUser "Some" "Thing" "Very Secret Password" randomTime randomTime
     _ <- runDB $ insertEntity libraryUser1
     _ <- runDB $ insertEntity libraryUser2
     _ <- runDB $ insertEntity libraryUser3
