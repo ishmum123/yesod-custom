@@ -45,6 +45,7 @@ import Handler.Home
 import Handler.Comment
 import Handler.Book
 import Handler.LibraryUser
+import Handler.Borrowal
 import Handler.Profile
 
 -- This line actually creates our YesodDispatch instance. It is the second half

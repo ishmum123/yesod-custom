@@ -32,3 +32,10 @@ LibraryUser json
     UniqueLibraryUserEmail
     deriving Eq
     deriving Show
+Borrowal json
+    userId LibraryUserId
+    bookId BookId
+    issueDate UTCTime default=CURRENT_DATE
+    returnDate UTCTime Maybe
+    deriving Eq
+    deriving Show

@@ -19,4 +19,9 @@
 /users LibraryUsersR GET POST OPTIONS
 /users/#LibraryUserId LibraryUserR GET PUT DELETE OPTIONS
 
+/borrowals BorrowalsR GET POST OPTIONS
+/borrowals/#BorrowalId BorrowalR GET PUT DELETE OPTIONS
+/borrowals/user/#LibraryUserId BorrowalsUserR GET OPTIONS
+/borrowals/book/#BookId BorrowalsBookR GET OPTIONS
+
 /profile ProfileR GET

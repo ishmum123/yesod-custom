@@ -147,6 +147,10 @@ instance Yesod App
   isAuthorized (BookSingleR _) _ = return Authorized
   isAuthorized (LibraryUserR _) _ = return Authorized
   isAuthorized LibraryUsersR _ = return Authorized
+  isAuthorized (BorrowalR _) _ = return Authorized
+  isAuthorized (BorrowalsUserR _) _ = return Authorized
+  isAuthorized (BorrowalsBookR _) _ = return Authorized
+  isAuthorized BorrowalsR _ = return Authorized
   isAuthorized HomeR _ = return Authorized
   isAuthorized FaviconR _ = return Authorized
   isAuthorized RobotsR _ = return Authorized
