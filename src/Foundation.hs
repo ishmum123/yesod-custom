@@ -150,6 +150,7 @@ instance Yesod App
   isAuthorized (BorrowalR _) _ = return Authorized
   isAuthorized (BorrowalsUserR _) _ = return Authorized
   isAuthorized (BorrowalsBookR _) _ = return Authorized
+  isAuthorized (UnreturnedBorrowalsR _) _ = return Authorized
   isAuthorized BorrowalsR _ = return Authorized
   isAuthorized HomeR _ = return Authorized
   isAuthorized FaviconR _ = return Authorized

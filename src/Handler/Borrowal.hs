@@ -2,6 +2,8 @@
 
 module Handler.Borrowal where
 
+import qualified Database.Esqueleto as E (from, isNothing, select, val, where_,
+                                          (==.), (^.))
 import           Import
 
 postBorrowalsR :: Handler Value
@@ -25,6 +27,18 @@ getBorrowalR borrowalId = do
 getBorrowalsUserR :: Key LibraryUser -> Handler Value
 getBorrowalsUserR userId = do
   borrowals <- runDB $ selectList [BorrowalUserId ==. userId] []
+  returnJson borrowals
+
+getUnreturnedBorrowalsR :: Key LibraryUser -> Handler Value
+getUnreturnedBorrowalsR userId = do
+  borrowals <-
+    runDB $
+    E.select $
+    E.from $ \(br, b) -> do
+      E.where_ ((br E.^. BorrowalUserId) E.==. E.val userId)
+      E.where_ (E.isNothing (br E.^. BorrowalReturnDate))
+      E.where_ (b E.^. BookId E.==. br E.^. BorrowalBookId)
+      return b
   returnJson borrowals
 
 getBorrowalsBookR :: Key Book -> Handler Value
@@ -67,7 +81,7 @@ optionsBorrowalsR :: Handler Value
 optionsBorrowalsR = do
   _ <- commonOptions
   returnJson ("" :: Text)
-  
+
 optionsBorrowalsUserR :: Key LibraryUser -> Handler Value
 optionsBorrowalsUserR _ = do
   _ <- commonOptions
@@ -77,5 +91,8 @@ optionsBorrowalsBookR :: Key Book -> Handler Value
 optionsBorrowalsBookR _ = do
   _ <- commonOptions
   returnJson ("" :: Text)
- 
 
+optionsUnreturnedBorrowalsR :: Key LibraryUser -> Handler Value
+optionsUnreturnedBorrowalsR _ = do
+  _ <- commonOptions
+  returnJson ("" :: Text)

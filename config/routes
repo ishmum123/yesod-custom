@@ -23,5 +23,6 @@
 /borrowals/#BorrowalId BorrowalR GET PUT DELETE OPTIONS
 /borrowals/user/#LibraryUserId BorrowalsUserR GET OPTIONS
 /borrowals/book/#BookId BorrowalsBookR GET OPTIONS
+/borrowals/unreturned/#LibraryUserId UnreturnedBorrowalsR GET OPTIONS
 
 /profile ProfileR GET

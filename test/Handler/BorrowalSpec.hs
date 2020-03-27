@@ -17,6 +17,7 @@ spec =
     singleRetrievalSpec
     getByUserSpec
     getByBookSpec
+    getUnreturnedBooksByUserSpec
     singleDeletionSpec
     singleUpdationSpec
     invalidRequestSpec
@@ -111,7 +112,24 @@ getByUserSpec =
     statusIs 200
     printBody
     (borrowals :: [Borrowal]) <- requireJSONResponse
-    assertEq "Should decrease count" 2 $ P.length borrowals
+    assertEq "Should contain 2 borrowals" 2 $ P.length borrowals
+
+getUnreturnedBooksByUserSpec :: SpecWith (TestApp App)
+getUnreturnedBooksByUserSpec =
+  describe "retrieval request" $
+  it "gets unreturned borrowals by user id" $ do
+    let borrowal1 = Borrowal (LibraryUserKey 1) (BookKey 1) randomTime Nothing
+        borrowal2 = Borrowal (LibraryUserKey 1) (BookKey 2) randomTime Nothing
+    _ <- createBook
+    _ <- createBook
+    _ <- createLibraryUser
+    _ <- runDB $ insertEntity borrowal1
+    _ <- runDB $ insertEntity borrowal2
+    get $ UnreturnedBorrowalsR $ LibraryUserKey 1
+    statusIs 200
+    printBody
+    (books :: [Book]) <- requireJSONResponse
+    assertEq "Should contain 2 books" 2 $ P.length books
 
 getByBookSpec :: SpecWith (TestApp App)
 getByBookSpec =
@@ -128,7 +146,7 @@ getByBookSpec =
     statusIs 200
     printBody
     (borrowals :: [Borrowal]) <- requireJSONResponse
-    assertEq "Should decrease count" 1 $ P.length borrowals
+    assertEq "Should contain 1 borrowal" 1 $ P.length borrowals
 
 singleDeletionSpec :: SpecWith (TestApp App)
 singleDeletionSpec =

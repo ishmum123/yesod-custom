@@ -17,6 +17,7 @@ dependencies:
 - persistent >=2.9 && <2.10
 - persistent-sqlite >=2.9 && <2.10
 - persistent-template >=2.5 && <2.9
+- esqueleto >=3.0 && <3.4
 - template-haskell
 - shakespeare >=2.0 && <2.1
 - hjsmin >=0.1 && <0.3
